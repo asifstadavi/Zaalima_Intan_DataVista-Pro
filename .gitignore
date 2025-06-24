@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+datavista/
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+datavista/
+
+# Data files
+mongodb-data/
+data/database/*.db
+data/input/uploaded_sales.csv
+data/output/*
+!data/input/retail_sales_dataset.csv
+
+# Docker
+*.log
+docker-compose.yml
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.swp
+*~

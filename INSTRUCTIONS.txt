@@ -1,0 +1,49 @@
+DataVista Pro Setup Instructions
+
+1. Unzip datavista.zip to C:\datavista.
+
+2. Install Prerequisites:
+   - Install Python 3.13: https://www.python.org/downloads/
+   - Install Docker Desktop: https://www.docker.com/products/docker-desktop/
+   - Install MongoDB 8.0: https://www.mongodb.com/try/download/community
+
+3. Open PowerShell in C:\datavista:
+   cd C:\datavista
+
+4. Set Up Python Environment:
+   python -m venv datavista
+   .\datavista\Scripts\Activate.ps1
+   pip install -r requirements.txt
+
+5. Start MongoDB:
+   mongod --dbpath C:\datavista\mongodb-data
+
+6. Start Docker Services:
+   docker run -d --name=redpanda -p 9092:9092 -p 9644:9644 redpandadata/redpanda:latest
+   docker run -d --name=minio -p 9000:9000 -p 9001:9001 minio/minio server /data --console-address ":9001"
+   docker run -d --name=grafana -p 3001:3000 -v grafana-data:/var/lib/grafana -e "GF_INSTALL_PLUGINS=frser-sqlite-datasource" grafana/grafana
+
+7. Configure Grafana:
+   docker cp config\grafana.ini grafana:/etc/grafana/grafana.ini
+   docker cp data\database\data.db grafana:/var/lib/grafana/data.db
+   docker restart grafana
+   - Open http://localhost:3001
+   - Add SQLite data source: Name "datavista-sqlite", Database File "/var/lib/grafana/data.db"
+   - Create "Retail Sales Dashboard" with:
+     - Bar Chart: SELECT product_category, SUM(total_amount) as total_sales FROM sales WHERE product_category IN (${product_category:sqlstring}) GROUP BY product_category
+     - Time Series: SELECT date, SUM(total_amount) as actual_sales, SUM(predicted_amount) as predicted_sales FROM sales_predictions WHERE product_category IN (${product_category:sqlstring}) GROUP BY date
+     - Table: SELECT product_category, quantity, total_amount FROM sales_summary WHERE product_category IN (${product_category:sqlstring})
+     - Variable: Name "product_category", Query "SELECT DISTINCT product_category FROM sales", Enable Multi-value and Include All
+
+8. Run the App:
+   uvicorn src.web.app:app --host 0.0.0.0 --port 8000
+
+9. Use the App:
+   - Open http://localhost:8000
+   - Upload data\input\retail_sales_dataset.csv
+   - View dashboard, filter by Product Category, download report
+
+Troubleshooting:
+- Ensure Docker Desktop is running.
+- Check PowerShell errors and retry commands.
+- Contact <your-email> for help.

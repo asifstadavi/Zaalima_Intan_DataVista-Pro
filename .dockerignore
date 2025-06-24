@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+*.db
+data/
+minio-data/
+mongodb-data/
+redpanda-data/
